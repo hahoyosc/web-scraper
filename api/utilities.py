@@ -25,21 +25,26 @@ MONTH_MAP = {
     "DIC": "Dec"
 }
 
-def parse_date(date_str: str) -> datetime | None:
+SPANISH_MONTHS = {
+    'ENE': 'JAN', 'FEB': 'FEB', 'MAR': 'MAR', 'ABR': 'APR',
+    'MAY': 'MAY', 'JUN': 'JUN', 'JUL': 'JUL', 'AGO': 'AUG',
+    'SEP': 'SEP', 'SEPT': 'SEP', 'OCT': 'OCT', 'NOV': 'NOV', 'DIC': 'DEC'
+}
+
+def parse_date(raw_date: str) -> datetime | None:
     try:
-        parts = date_str.strip().split()
+        parts = raw_date.strip().upper().split()
         if len(parts) != 3:
-            raise ValueError("Unexpected date format")
+            raise ValueError(f"Not a valid format: {raw_date}")
 
-        day = parts[0].zfill(2)
-        month = MONTH_MAP.get(parts[1].upper())
-        year = parts[2]
+        day, mon, year = parts
+        mon_eng = SPANISH_MONTHS.get(mon)
+        if not mon_eng:
+            raise ValueError(f"Invalid month: {mon}")
 
-        if not month:
-            raise ValueError("Not a valid month")
-
-        return datetime.strptime(f"{day} {month} {year}", "%d %b %Y")
+        translated_date = f"{mon_eng} {day} {year}"
+        return datetime.strptime(translated_date, "%b %d %Y")
 
     except Exception as e:
-        logger.warning(f"Error parsing the date '{date_str}': {e}")
+        print(f"Error parsing the date '{raw_date}': {e}")
         return None
